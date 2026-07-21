@@ -56,9 +56,12 @@ def gen_drafts(req: DraftReq):
     con = db.connect()
     try:
         made = emailer.generate_drafts(con, req.ids)
+        ids = [r["id"] for r in con.execute(
+            "SELECT id FROM drafts WHERE development_id IN (%s)"
+            % ",".join("?" * len(req.ids)), req.ids)] if req.ids else []
     finally:
         con.close()
-    return {"generated": made}
+    return {"generated": made, "draft_ids": ids}
 
 
 @app.get("/api/drafts")
@@ -68,6 +71,28 @@ def drafts():
         FROM drafts dr JOIN developments d ON d.id = dr.development_id
         ORDER BY dr.status, d.name
     """)}
+
+
+class BulkStatus(BaseModel):
+    ids: list[int]
+    status: str
+
+
+# NOTE: must be declared before the /api/drafts/{draft_id} route, or FastAPI
+# tries to parse "bulk" as a draft_id and returns 422
+@app.post("/api/drafts/bulk/status")
+def bulk_status(req: BulkStatus):
+    if req.status not in ("draft", "approved", "skipped"):
+        return JSONResponse({"error": "bad status"}, status_code=400)
+    con = db.connect()
+    try:
+        con.executemany(
+            "UPDATE drafts SET status=? WHERE id=? AND status != 'sent'",
+            [(req.status, i) for i in req.ids])
+        con.commit()
+    finally:
+        con.close()
+    return {"ok": True}
 
 
 class DraftEdit(BaseModel):
@@ -92,26 +117,6 @@ def edit_draft(draft_id: int, req: DraftEdit):
                 if field == "status" and v not in ("draft", "approved", "skipped"):
                     return JSONResponse({"error": "bad status"}, status_code=400)
                 con.execute(f"UPDATE drafts SET {field}=? WHERE id=?", (v, draft_id))
-        con.commit()
-    finally:
-        con.close()
-    return {"ok": True}
-
-
-class BulkStatus(BaseModel):
-    ids: list[int]
-    status: str
-
-
-@app.post("/api/drafts/bulk/status")
-def bulk_status(req: BulkStatus):
-    if req.status not in ("draft", "approved", "skipped"):
-        return JSONResponse({"error": "bad status"}, status_code=400)
-    con = db.connect()
-    try:
-        con.executemany(
-            "UPDATE drafts SET status=? WHERE id=? AND status != 'sent'",
-            [(req.status, i) for i in req.ids])
         con.commit()
     finally:
         con.close()
