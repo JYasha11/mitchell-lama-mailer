@@ -1,478 +1,1104 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mitchell-Lama Mailer</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<style>
-  :root { --bg:#0f1115; --panel:#181b22; --panel2:#1c2029; --line:#2a2f3a; --text:#e8eaf0;
-          --dim:#9aa3b2; --accent:#4f8ef7; --open:#2ecc71; --sel:#f5b942; --err:#e74c3c; }
-  * { box-sizing:border-box; }
-  html, body { height:100%; }
-  body { margin:0; font:14px/1.45 -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); overflow:hidden; }
-  button { font:inherit; }
-  a { color:var(--accent); text-decoration:none; }
-  .dim { color:var(--dim); }
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Mitchell-Lama Mailer</title>
+		<link
+			rel="stylesheet"
+			href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+		<style>
+			:root {
+				--bg: #0f1115;
+				--panel: #181b22;
+				--panel2: #1c2029;
+				--line: #2a2f3a;
+				--text: #e8eaf0;
+				--dim: #9aa3b2;
+				--accent: #4f8ef7;
+				--open: #2ecc71;
+				--sel: #f5b942;
+				--err: #e74c3c;
+			}
+			* {
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				height: 100%;
+			}
+			body {
+				margin: 0;
+				font:
+					14px/1.45 -apple-system,
+					'Segoe UI',
+					sans-serif;
+				background: var(--bg);
+				color: var(--text);
+				overflow: hidden;
+			}
+			button {
+				font: inherit;
+			}
+			a {
+				color: var(--accent);
+				text-decoration: none;
+			}
+			.dim {
+				color: var(--dim);
+			}
 
-  header { display:flex; align-items:center; gap:14px; padding:0 16px; height:48px; border-bottom:1px solid var(--line); }
-  header h1 { font-size:16px; margin:0; }
-  #hdr-counts { color:var(--dim); font-size:12px; }
-  #queue-btn { margin-left:auto; background:var(--panel); color:var(--text); border:1px solid var(--line);
-    border-radius:8px; padding:7px 14px; cursor:pointer; display:flex; gap:8px; align-items:center; }
-  #queue-btn:hover { border-color:var(--accent); }
-  #queue-badge { background:var(--accent); color:#fff; border-radius:10px; padding:0 8px; font-size:12px; line-height:18px; }
-  #queue-badge.empty { background:var(--line); color:var(--dim); }
+			header {
+				display: flex;
+				align-items: center;
+				gap: 14px;
+				padding: 0 16px;
+				height: 48px;
+				border-bottom: 1px solid var(--line);
+			}
+			header h1 {
+				font-size: 16px;
+				margin: 0;
+			}
+			#hdr-counts {
+				color: var(--dim);
+				font-size: 12px;
+			}
+			#queue-btn {
+				margin-left: auto;
+				background: var(--panel);
+				color: var(--text);
+				border: 1px solid var(--line);
+				border-radius: 8px;
+				padding: 7px 14px;
+				cursor: pointer;
+				display: flex;
+				gap: 8px;
+				align-items: center;
+			}
+			#queue-btn:hover {
+				border-color: var(--accent);
+			}
+			#queue-badge {
+				background: var(--accent);
+				color: #fff;
+				border-radius: 10px;
+				padding: 0 8px;
+				font-size: 12px;
+				line-height: 18px;
+			}
+			#queue-badge.empty {
+				background: var(--line);
+				color: var(--dim);
+			}
 
-  #app { display:grid; grid-template-columns:300px 1fr; height:calc(100vh - 48px); }
-  #sidebar { border-right:1px solid var(--line); padding:12px 14px 90px; overflow-y:auto; }
-  #sidebar h3 { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--dim); margin:14px 0 5px; }
-  #sidebar label { display:block; margin:3px 0; cursor:pointer; }
-  #sidebar input[type=range] { width:100%; }
-  .btn { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:8px 14px; cursor:pointer; }
-  .btn:disabled { opacity:.4; cursor:default; }
-  .btn.secondary { background:var(--panel); color:var(--text); border:1px solid var(--line); }
-  .btn.small { padding:4px 10px; font-size:12px; }
+			#app {
+				display: grid;
+				grid-template-columns: 300px 1fr;
+				height: calc(100vh - 48px);
+			}
+			#sidebar {
+				border-right: 1px solid var(--line);
+				padding: 12px 14px 90px;
+				overflow-y: auto;
+			}
+			#sidebar h3 {
+				font-size: 11px;
+				text-transform: uppercase;
+				letter-spacing: 0.06em;
+				color: var(--dim);
+				margin: 14px 0 5px;
+			}
+			#sidebar label {
+				display: block;
+				margin: 3px 0;
+				cursor: pointer;
+			}
+			#sidebar input[type='range'] {
+				width: 100%;
+			}
+			.btn {
+				background: var(--accent);
+				color: #fff;
+				border: none;
+				border-radius: 8px;
+				padding: 8px 14px;
+				cursor: pointer;
+			}
+			.btn:disabled {
+				opacity: 0.4;
+				cursor: default;
+			}
+			.btn.secondary {
+				background: var(--panel);
+				color: var(--text);
+				border: 1px solid var(--line);
+			}
+			.btn.small {
+				padding: 4px 10px;
+				font-size: 12px;
+			}
 
-  #content { display:grid; grid-template-rows:48% 1fr; min-width:0; min-height:0; }
-  #mapwrap { position:relative; min-height:0; }
-  #map { position:absolute; inset:0; background:#0a0c10; }
-  #legend { position:absolute; right:10px; top:10px; z-index:800; background:rgba(15,17,21,.88);
-    border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:12px; line-height:1.7; }
-  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:-1px; }
-  #tablewrap { overflow:auto; min-height:0; padding-bottom:70px; }
-  table { border-collapse:collapse; width:100%; }
-  th, td { padding:6px 10px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap; }
-  th { position:sticky; top:0; background:var(--panel); font-size:12px; color:var(--dim); cursor:pointer; z-index:5; }
-  tbody tr { cursor:pointer; }
-  tbody tr:hover td { background:var(--panel2); }
-  tbody tr.selrow td { background:rgba(245,185,66,.10); }
-  tbody tr.selrow td:first-child { box-shadow:inset 3px 0 0 var(--sel); }
-  tbody tr.nomail { cursor:default; }
-  .tag { display:inline-block; padding:1px 7px; border-radius:9px; font-size:11px; margin-right:3px; }
-  .tag.open { background:rgba(46,204,113,.18); color:var(--open); }
-  .tag.short { background:rgba(79,142,247,.18); color:var(--accent); }
-  .tag.coop { background:rgba(155,89,182,.2); color:#c39bd3; }
-  .tag.rental { background:rgba(241,196,15,.15); color:#f1c40f; }
-  .tag.senior { background:rgba(231,76,60,.15); color:var(--err); }
-  .locate { cursor:pointer; opacity:.6; } .locate:hover { opacity:1; }
-  .st { font-size:12px; }
-  .st.draft { color:var(--dim); } .st.approved { color:var(--accent); }
-  .st.sent { color:var(--open); } .st.error { color:var(--err); } .st.skipped { color:#777; }
+			#content {
+				display: grid;
+				grid-template-rows: 48% 1fr;
+				min-width: 0;
+				min-height: 0;
+			}
+			#mapwrap {
+				position: relative;
+				min-height: 0;
+			}
+			#map {
+				position: absolute;
+				inset: 0;
+				background: #0a0c10;
+			}
+			#legend {
+				position: absolute;
+				right: 10px;
+				top: 10px;
+				z-index: 800;
+				background: rgba(15, 17, 21, 0.88);
+				border: 1px solid var(--line);
+				border-radius: 8px;
+				padding: 8px 12px;
+				font-size: 12px;
+				line-height: 1.7;
+			}
+			.dot {
+				display: inline-block;
+				width: 10px;
+				height: 10px;
+				border-radius: 50%;
+				margin-right: 6px;
+				vertical-align: -1px;
+			}
+			#tablewrap {
+				overflow: auto;
+				min-height: 0;
+				padding-bottom: 70px;
+			}
+			table {
+				border-collapse: collapse;
+				width: 100%;
+			}
+			th,
+			td {
+				padding: 6px 10px;
+				text-align: left;
+				border-bottom: 1px solid var(--line);
+				white-space: nowrap;
+			}
+			th {
+				position: sticky;
+				top: 0;
+				background: var(--panel);
+				font-size: 12px;
+				color: var(--dim);
+				cursor: pointer;
+				z-index: 5;
+			}
+			tbody tr {
+				cursor: pointer;
+			}
+			tbody tr:hover td {
+				background: var(--panel2);
+			}
+			tbody tr.selrow td {
+				background: rgba(245, 185, 66, 0.1);
+			}
+			tbody tr.selrow td:first-child {
+				box-shadow: inset 3px 0 0 var(--sel);
+			}
+			tbody tr.nomail {
+				cursor: default;
+			}
+			.tag {
+				display: inline-block;
+				padding: 1px 7px;
+				border-radius: 9px;
+				font-size: 11px;
+				margin-right: 3px;
+			}
+			.tag.open {
+				background: rgba(46, 204, 113, 0.18);
+				color: var(--open);
+			}
+			.tag.short {
+				background: rgba(79, 142, 247, 0.18);
+				color: var(--accent);
+			}
+			.tag.coop {
+				background: rgba(155, 89, 182, 0.2);
+				color: #c39bd3;
+			}
+			.tag.rental {
+				background: rgba(241, 196, 15, 0.15);
+				color: #f1c40f;
+			}
+			.tag.senior {
+				background: rgba(231, 76, 60, 0.15);
+				color: var(--err);
+			}
+			.locate {
+				cursor: pointer;
+				opacity: 0.6;
+			}
+			.locate:hover {
+				opacity: 1;
+			}
+			.st {
+				font-size: 12px;
+			}
+			.st.draft {
+				color: var(--dim);
+			}
+			.st.approved {
+				color: var(--accent);
+			}
+			.st.sent {
+				color: var(--open);
+			}
+			.st.error {
+				color: var(--err);
+			}
+			.st.skipped {
+				color: #777;
+			}
 
-  /* selection tray */
-  #tray { position:fixed; left:300px; right:0; bottom:0; z-index:900; display:none;
-    background:rgba(19,22,28,.97); border-top:1px solid var(--sel); padding:10px 16px;
-    box-shadow:0 -6px 20px rgba(0,0,0,.4); }
-  #tray.show { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-  #tray .chips { display:flex; gap:6px; flex-wrap:wrap; flex:1; min-width:0; max-height:64px; overflow-y:auto; }
-  .chip { background:rgba(245,185,66,.14); border:1px solid rgba(245,185,66,.4); color:var(--sel);
-    border-radius:14px; padding:2px 10px; font-size:12px; white-space:nowrap; }
-  .chip b { cursor:pointer; margin-left:6px; font-weight:700; }
-  .chip.more { border-style:dashed; cursor:pointer; }
+			/* selection tray */
+			#tray {
+				position: fixed;
+				left: 300px;
+				right: 0;
+				bottom: 0;
+				z-index: 900;
+				display: none;
+				background: rgba(19, 22, 28, 0.97);
+				border-top: 1px solid var(--sel);
+				padding: 10px 16px;
+				box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.4);
+			}
+			#tray.show {
+				display: flex;
+				gap: 10px;
+				align-items: center;
+				flex-wrap: wrap;
+			}
+			#tray .chips {
+				display: flex;
+				gap: 6px;
+				flex-wrap: wrap;
+				flex: 1;
+				min-width: 0;
+				max-height: 64px;
+				overflow-y: auto;
+			}
+			.chip {
+				background: rgba(245, 185, 66, 0.14);
+				border: 1px solid rgba(245, 185, 66, 0.4);
+				color: var(--sel);
+				border-radius: 14px;
+				padding: 2px 10px;
+				font-size: 12px;
+				white-space: nowrap;
+			}
+			.chip b {
+				cursor: pointer;
+				margin-left: 6px;
+				font-weight: 700;
+			}
+			.chip.more {
+				border-style: dashed;
+				cursor: pointer;
+			}
 
-  /* queue slide-over */
-  #queue { position:fixed; top:0; right:0; bottom:0; width:620px; max-width:95vw; z-index:1000;
-    background:var(--bg); border-left:1px solid var(--line); box-shadow:-12px 0 34px rgba(0,0,0,.55);
-    transform:translateX(105%); transition:transform .22s ease; display:flex; flex-direction:column; }
-  #queue.open { transform:none; }
-  #queue header { flex:none; }
-  #queue header h2 { font-size:15px; margin:0; }
-  #q-close { margin-left:auto; background:none; border:none; color:var(--dim); font-size:20px; cursor:pointer; }
-  #q-close:hover { color:var(--text); }
-  #q-filters { display:flex; gap:6px; padding:10px 16px; border-bottom:1px solid var(--line); flex-wrap:wrap; flex:none; }
-  .qf { background:var(--panel); border:1px solid var(--line); color:var(--dim); border-radius:14px;
-    padding:3px 12px; font-size:12px; cursor:pointer; }
-  .qf.active { color:var(--text); border-color:var(--accent); background:rgba(79,142,247,.12); }
-  #q-actions { display:flex; gap:8px; align-items:center; padding:10px 16px; border-bottom:1px solid var(--line); flex-wrap:wrap; flex:none; }
-  #q-list { overflow-y:auto; padding:10px 16px 30px; flex:1; }
-  .banner { background:#2b1f0e; border:1px solid #6b4e16; color:#f0c060; border-radius:8px; padding:9px 13px; margin:10px 16px 0; font-size:13px; flex:none; }
-  .draft { border:1px solid var(--line); border-radius:8px; margin:8px 0; background:var(--panel); }
-  .draft.new { border-color:rgba(245,185,66,.55); }
-  .draft .head { display:flex; gap:8px; align-items:center; padding:9px 12px; cursor:pointer; flex-wrap:wrap; }
-  .draft .head .st { margin-left:auto; }
-  .newtag { background:rgba(245,185,66,.16); color:var(--sel); border-radius:9px; padding:1px 7px; font-size:11px; }
-  .draft .body { padding:0 12px 12px; display:none; }
-  .draft.openx .body { display:block; }
-  .draft textarea, .draft input[type=text] { width:100%; background:#10131a; color:var(--text);
-    border:1px solid var(--line); border-radius:6px; padding:8px; font:13px/1.4 ui-monospace, Menlo, monospace; }
-  .draft textarea { min-height:220px; }
-  .rowbtns { display:flex; gap:8px; margin-top:8px; }
-  #sendprog { color:var(--dim); font-size:12px; }
+			/* queue slide-over */
+			#queue {
+				position: fixed;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				width: 620px;
+				max-width: 95vw;
+				z-index: 1000;
+				background: var(--bg);
+				border-left: 1px solid var(--line);
+				box-shadow: -12px 0 34px rgba(0, 0, 0, 0.55);
+				transform: translateX(105%);
+				transition: transform 0.22s ease;
+				display: flex;
+				flex-direction: column;
+			}
+			#queue.open {
+				transform: none;
+			}
+			#queue header {
+				flex: none;
+			}
+			#queue header h2 {
+				font-size: 15px;
+				margin: 0;
+			}
+			#q-close {
+				margin-left: auto;
+				background: none;
+				border: none;
+				color: var(--dim);
+				font-size: 20px;
+				cursor: pointer;
+			}
+			#q-close:hover {
+				color: var(--text);
+			}
+			#q-filters {
+				display: flex;
+				gap: 6px;
+				padding: 10px 16px;
+				border-bottom: 1px solid var(--line);
+				flex-wrap: wrap;
+				flex: none;
+			}
+			.qf {
+				background: var(--panel);
+				border: 1px solid var(--line);
+				color: var(--dim);
+				border-radius: 14px;
+				padding: 3px 12px;
+				font-size: 12px;
+				cursor: pointer;
+			}
+			.qf.active {
+				color: var(--text);
+				border-color: var(--accent);
+				background: rgba(79, 142, 247, 0.12);
+			}
+			#q-actions {
+				display: flex;
+				gap: 8px;
+				align-items: center;
+				padding: 10px 16px;
+				border-bottom: 1px solid var(--line);
+				flex-wrap: wrap;
+				flex: none;
+			}
+			#q-list {
+				overflow-y: auto;
+				padding: 10px 16px 30px;
+				flex: 1;
+			}
+			.banner {
+				background: #2b1f0e;
+				border: 1px solid #6b4e16;
+				color: #f0c060;
+				border-radius: 8px;
+				padding: 9px 13px;
+				margin: 10px 16px 0;
+				font-size: 13px;
+				flex: none;
+			}
+			.draft {
+				border: 1px solid var(--line);
+				border-radius: 8px;
+				margin: 8px 0;
+				background: var(--panel);
+			}
+			.draft.new {
+				border-color: rgba(245, 185, 66, 0.55);
+			}
+			.draft .head {
+				display: flex;
+				gap: 8px;
+				align-items: center;
+				padding: 9px 12px;
+				cursor: pointer;
+				flex-wrap: wrap;
+			}
+			.draft .head .st {
+				margin-left: auto;
+			}
+			.newtag {
+				background: rgba(245, 185, 66, 0.16);
+				color: var(--sel);
+				border-radius: 9px;
+				padding: 1px 7px;
+				font-size: 11px;
+			}
+			.draft .body {
+				padding: 0 12px 12px;
+				display: none;
+			}
+			.draft.openx .body {
+				display: block;
+			}
+			.draft textarea,
+			.draft input[type='text'] {
+				width: 100%;
+				background: #10131a;
+				color: var(--text);
+				border: 1px solid var(--line);
+				border-radius: 6px;
+				padding: 8px;
+				font:
+					13px/1.4 ui-monospace,
+					Menlo,
+					monospace;
+			}
+			.draft textarea {
+				min-height: 220px;
+			}
+			.rowbtns {
+				display: flex;
+				gap: 8px;
+				margin-top: 8px;
+			}
+			#sendprog {
+				color: var(--dim);
+				font-size: 12px;
+			}
 
-  #filters-btn { display:none; background:var(--panel); color:var(--text); border:1px solid var(--line);
-    border-radius:8px; padding:7px 12px; cursor:pointer; }
-  @media (max-width: 900px) {
-    #app { grid-template-columns:1fr; }
-    #filters-btn { display:block; }
-    #sidebar { position:fixed; top:48px; left:0; bottom:0; width:290px; z-index:950;
-      background:var(--bg); transform:translateX(-105%); transition:transform .2s ease;
-      box-shadow:12px 0 30px rgba(0,0,0,.5); }
-    #sidebar.open { transform:none; }
-    #tray { left:0; }
-    #queue { width:100vw; }
-    #hdr-counts { display:none; }
-  }
-</style>
-</head>
-<body>
-<header>
-  <h1>Mitchell-Lama Mailer</h1>
-  <button id="filters-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">Filters</button>
-  <span id="hdr-counts"></span>
-  <button id="queue-btn" onclick="toggleQueue(true)">Email queue <span id="queue-badge" class="empty">0</span></button>
-</header>
+			#filters-btn {
+				display: none;
+				background: var(--panel);
+				color: var(--text);
+				border: 1px solid var(--line);
+				border-radius: 8px;
+				padding: 7px 12px;
+				cursor: pointer;
+			}
+			@media (max-width: 900px) {
+				#app {
+					grid-template-columns: 1fr;
+				}
+				#filters-btn {
+					display: block;
+				}
+				#sidebar {
+					position: fixed;
+					top: 48px;
+					left: 0;
+					bottom: 0;
+					width: 290px;
+					z-index: 950;
+					background: var(--bg);
+					transform: translateX(-105%);
+					transition: transform 0.2s ease;
+					box-shadow: 12px 0 30px rgba(0, 0, 0, 0.5);
+				}
+				#sidebar.open {
+					transform: none;
+				}
+				#tray {
+					left: 0;
+				}
+				#queue {
+					width: 100vw;
+				}
+				#hdr-counts {
+					display: none;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<h1>Mitchell-Lama Mailer</h1>
+			<button
+				id="filters-btn"
+				onclick="document.getElementById('sidebar').classList.toggle('open')">
+				Filters
+			</button>
+			<span id="hdr-counts"></span>
+			<button id="queue-btn" onclick="toggleQueue(true)">
+				Email queue <span id="queue-badge" class="empty">0</span>
+			</button>
+		</header>
 
-<div id="app">
-  <div id="sidebar">
-    <h3>Waitlist</h3>
-    <label><input type="checkbox" id="f-openonly"> Open waitlist only (HPD-confirmed)</label>
-    <h3>Type</h3>
-    <label><input type="checkbox" id="f-coop" checked> Co-op (buy-in)</label>
-    <label><input type="checkbox" id="f-rental" checked> Rental</label>
-    <label><input type="checkbox" id="f-senior"> Include senior-only (62+)</label>
-    <h3>Contact</h3>
-    <label><input type="checkbox" id="f-email"> Has email only</label>
-    <h3>Borough / county</h3>
-    <div id="f-boroughs"></div>
-    <h3>Max est. transit to Midtown: <span id="f-transit-val">75</span> min</h3>
-    <input type="range" id="f-transit" min="15" max="120" value="75" step="5">
-    <p class="dim" style="font-size:12px; margin-top:4px">Rough distance-based guess — use each
-      building's Maps link for a real transit time.</p>
-    <h3>Bulk select</h3>
-    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-      <button class="btn secondary small" onclick="selectAllVisible()">Select all visible</button>
-    </div>
-    <p class="dim" id="counts" style="font-size:12px"></p>
-  </div>
+		<div id="app">
+			<div id="sidebar">
+				<h3>Waitlist</h3>
+				<label
+					><input type="checkbox" id="f-openonly" /> Open waitlist only
+					(HPD-confirmed)</label
+				>
+				<h3>Type</h3>
+				<label
+					><input type="checkbox" id="f-coop" checked /> Co-op (buy-in)</label
+				>
+				<label><input type="checkbox" id="f-rental" checked /> Rental</label>
+				<label
+					><input type="checkbox" id="f-senior" /> Include senior-only
+					(62+)</label
+				>
+				<h3>Contact</h3>
+				<label><input type="checkbox" id="f-email" /> Has email only</label>
+				<h3>Borough / county</h3>
+				<div id="f-boroughs"></div>
+				<h3>
+					Max est. transit to Midtown: <span id="f-transit-val">75</span> min
+				</h3>
+				<input
+					type="range"
+					id="f-transit"
+					min="15"
+					max="120"
+					value="75"
+					step="5" />
+				<p class="dim" style="font-size: 12px; margin-top: 4px">
+					Rough distance-based guess — use each building's Maps link for a real
+					transit time.
+				</p>
+				<h3>Bulk select</h3>
+				<div style="display: flex; gap: 8px; flex-wrap: wrap">
+					<button class="btn secondary small" onclick="selectAllVisible()">
+						Select all visible
+					</button>
+				</div>
+				<p class="dim" id="counts" style="font-size: 12px"></p>
+			</div>
 
-  <div id="content">
-    <div id="mapwrap">
-      <div id="map"></div>
-      <div id="legend">
-        <span class="dot" style="background:#2ecc71"></span>open waitlist<br>
-        <span class="dot" style="background:#4f8ef7"></span>emailable<br>
-        <span class="dot" style="background:#555c69"></span>phone only<br>
-        <span class="dot" style="background:transparent; border:2.5px solid var(--sel); width:7px; height:7px;"></span>selected — click a dot to select
-      </div>
-    </div>
-    <div id="tablewrap"><table id="tbl">
-      <thead><tr>
-        <th style="width:26px"></th><th data-k="name">Development</th><th data-k="borough">Borough</th>
-        <th data-k="kind">Type</th><th data-k="units">Units</th>
-        <th data-k="est_transit_min">Est. transit</th><th>Waitlist</th>
-        <th data-k="email">Email</th><th>Phone</th><th></th>
-      </tr></thead>
-      <tbody></tbody>
-    </table></div>
-  </div>
-</div>
+			<div id="content">
+				<div id="mapwrap">
+					<div id="map"></div>
+					<div id="legend">
+						<span class="dot" style="background: #2ecc71"></span>open
+						waitlist<br />
+						<span class="dot" style="background: #4f8ef7"></span>emailable<br />
+						<span class="dot" style="background: #555c69"></span>phone only<br />
+						<span
+							class="dot"
+							style="
+								background: transparent;
+								border: 2.5px solid var(--sel);
+								width: 7px;
+								height: 7px;
+							"></span
+						>selected — click a dot to select
+					</div>
+				</div>
+				<div id="tablewrap">
+					<table id="tbl">
+						<thead>
+							<tr>
+								<th style="width: 26px"></th>
+								<th data-k="name">Development</th>
+								<th data-k="borough">Borough</th>
+								<th data-k="kind">Type</th>
+								<th data-k="units">Units</th>
+								<th data-k="est_transit_min">Est. transit</th>
+								<th>Waitlist</th>
+								<th data-k="email">Email</th>
+								<th>Phone</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
 
-<div id="tray">
-  <b style="color:var(--sel); white-space:nowrap;" id="tray-count"></b>
-  <div class="chips" id="tray-chips"></div>
-  <button class="btn" id="gen-btn" onclick="generateDrafts()">Draft emails</button>
-  <button class="btn secondary" onclick="clearSel()">Clear</button>
-</div>
+		<div id="tray">
+			<b style="color: var(--sel); white-space: nowrap" id="tray-count"></b>
+			<div class="chips" id="tray-chips"></div>
+			<button class="btn" id="gen-btn" onclick="generateDrafts()">
+				Draft emails
+			</button>
+			<button class="btn secondary" onclick="clearSel()">Clear</button>
+		</div>
 
-<div id="queue">
-  <header>
-    <h2>Email queue</h2>
-    <button id="q-close" onclick="toggleQueue(false)" title="Close">✕</button>
-  </header>
-  <div id="smtp-banner" class="banner" style="display:none">
-    Sending isn't configured — fill in <code>GMAIL_APP_PASSWORD</code> in <code>.env</code>
-    (Google Account → Security → 2-Step Verification → App passwords) and restart the server.
-    You can still review and approve now.
-  </div>
-  <div id="q-filters"></div>
-  <div id="q-actions">
-    <button class="btn secondary small" onclick="approveShown()">Approve all shown</button>
-    <button class="btn small" id="send-btn" onclick="sendAll()">Send approved</button>
-    <span id="sendprog"></span>
-  </div>
-  <div id="q-list"></div>
-</div>
+		<div id="queue">
+			<header>
+				<h2>Email queue</h2>
+				<button id="q-close" onclick="toggleQueue(false)" title="Close">
+					✕
+				</button>
+			</header>
+			<div id="smtp-banner" class="banner" style="display: none">
+				Sending isn't configured — fill in <code>GMAIL_APP_PASSWORD</code> in
+				<code>.env</code>
+				(Google Account → Security → 2-Step Verification → App passwords) and
+				restart the server. You can still review and approve now.
+			</div>
+			<div id="q-filters"></div>
+			<div id="q-actions">
+				<button class="btn secondary small" onclick="approveShown()">
+					Approve all shown
+				</button>
+				<button class="btn small" id="send-btn" onclick="sendAll()">
+					Send approved
+				</button>
+				<span id="sendprog"></span>
+			</div>
+			<div id="q-list"></div>
+		</div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-let DEVS = [], BYID = {}, MARKS = {}, MAP, CFG = {};
-let SEL = new Set(JSON.parse(localStorage.getItem("mlm_sel") || "[]"));
-let DRAFTS = [], NEW_IDS = new Set(), qFilter = "all", chipsExpanded = false;
-let sortKey = null, sortAsc = true;
+		<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+		<script>
+			let DEVS = [],
+				BYID = {},
+				MARKS = {},
+				MAP,
+				CFG = {};
+			let SEL = new Set(JSON.parse(localStorage.getItem('mlm_sel') || '[]'));
+			let DRAFTS = [],
+				NEW_IDS = new Set(),
+				qFilter = 'all',
+				chipsExpanded = false;
+			let sortKey = null,
+				sortAsc = true;
 
-const $ = s => document.querySelector(s);
-const esc = s => (s ?? "").toString().replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const titleCase = s => s && s === s.toUpperCase()
-  ? s.replace(/\w+/g, w => w[0] + w.slice(1).toLowerCase()).replace(/\b(Ii+|Iv|Vi+)\b/g, m => m.toUpperCase())
-  : s;
-const saveSel = () => localStorage.setItem("mlm_sel", JSON.stringify([...SEL]));
+			const $ = (s) => document.querySelector(s);
+			const esc = (s) =>
+				(s ?? '')
+					.toString()
+					.replace(
+						/[&<>"]/g,
+						(c) =>
+							({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c],
+					);
+			const titleCase = (s) =>
+				s && s === s.toUpperCase()
+					? s
+							.replace(/\w+/g, (w) => w[0] + w.slice(1).toLowerCase())
+							.replace(/\b(Ii+|Iv|Vi+)\b/g, (m) => m.toUpperCase())
+					: s;
+			const saveSel = () =>
+				localStorage.setItem('mlm_sel', JSON.stringify([...SEL]));
 
-async function init() {
-  CFG = await (await fetch("/api/config")).json();
-  DEVS = (await (await fetch("/api/developments")).json()).developments;
-  DEVS.forEach(d => BYID[d.id] = d);
-  SEL = new Set([...SEL].filter(id => BYID[id] && BYID[id].email));  // drop stale ids
-  MAP = L.map("map").setView([40.72, -73.94], 11);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    { attribution: "&copy; OpenStreetMap, CARTO", maxZoom: 19 }).addTo(MAP);
+			async function init() {
+				CFG = await (await fetch('/api/config')).json();
+				DEVS = (await (await fetch('/api/developments')).json()).developments;
+				DEVS.forEach((d) => (BYID[d.id] = d));
+				SEL = new Set([...SEL].filter((id) => BYID[id] && BYID[id].email)); // drop stale ids
+				MAP = L.map('map').setView([40.72, -73.94], 11);
+				L.tileLayer(
+					'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+					{ attribution: '&copy; OpenStreetMap, CARTO', maxZoom: 19 },
+				).addTo(MAP);
 
-  const boroughs = [...new Set(DEVS.map(x => x.borough).filter(Boolean))].sort();
-  const nyc = ["Manhattan","Brooklyn","Queens","Bronx","Staten Island"];
-  const ordered = [...nyc.filter(b => boroughs.includes(b)), ...boroughs.filter(b => !nyc.includes(b))];
-  $("#f-boroughs").innerHTML = ordered.map(b =>
-    `<label><input type="checkbox" class="f-b" value="${esc(b)}" ${nyc.includes(b) ? "checked" : ""}> ${esc(b)}${nyc.includes(b) ? "" : " <span class=dim>(county)</span>"}</label>`).join("");
-  document.querySelectorAll("#sidebar input").forEach(i => i.addEventListener("input", render));
-  document.querySelectorAll("th[data-k]").forEach(th => th.addEventListener("click", () => {
-    const k = th.dataset.k;
-    sortAsc = sortKey === k ? !sortAsc : true; sortKey = k; render();
-  }));
-  await loadDrafts(false);
-  render();
-}
+				const boroughs = [
+					...new Set(DEVS.map((x) => x.borough).filter(Boolean)),
+				].sort();
+				const nyc = [
+					'Manhattan',
+					'Brooklyn',
+					'Queens',
+					'Bronx',
+					'Staten Island',
+				];
+				const ordered = [
+					...nyc.filter((b) => boroughs.includes(b)),
+					...boroughs.filter((b) => !nyc.includes(b)),
+				];
+				$('#f-boroughs').innerHTML = ordered
+					.map(
+						(b) =>
+							`<label><input type="checkbox" class="f-b" value="${esc(b)}" ${nyc.includes(b) ? 'checked' : ''}> ${esc(b)}${nyc.includes(b) ? '' : ' <span class=dim>(county)</span>'}</label>`,
+					)
+					.join('');
+				document
+					.querySelectorAll('#sidebar input')
+					.forEach((i) => i.addEventListener('input', render));
+				document.querySelectorAll('th[data-k]').forEach((th) =>
+					th.addEventListener('click', () => {
+						const k = th.dataset.k;
+						sortAsc = sortKey === k ? !sortAsc : true;
+						sortKey = k;
+						render();
+					}),
+				);
+				await loadDrafts(false);
+				render();
+			}
 
-function visible() {
-  const coop = $("#f-coop").checked, rental = $("#f-rental").checked;
-  const senior = $("#f-senior").checked, emailOnly = $("#f-email").checked;
-  const openOnly = $("#f-openonly").checked, maxT = +$("#f-transit").value;
-  const bs = new Set([...document.querySelectorAll(".f-b:checked")].map(i => i.value));
-  return DEVS.filter(d => {
-    if (d.kind === "Coop" && !coop) return false;
-    if (d.kind === "Rental" && !rental) return false;
-    if (d.senior_only && !senior) return false;
-    if (emailOnly && !d.email) return false;
-    if (openOnly && !d.on_open_list && !d.on_short_list) return false;
-    if (d.borough && !bs.has(d.borough)) return false;
-    if (d.est_transit_min != null && d.est_transit_min > maxT) return false;
-    return true;
-  });
-}
+			function visible() {
+				const coop = $('#f-coop').checked,
+					rental = $('#f-rental').checked;
+				const senior = $('#f-senior').checked,
+					emailOnly = $('#f-email').checked;
+				const openOnly = $('#f-openonly').checked,
+					maxT = +$('#f-transit').value;
+				const bs = new Set(
+					[...document.querySelectorAll('.f-b:checked')].map((i) => i.value),
+				);
+				return DEVS.filter((d) => {
+					if (d.kind === 'Coop' && !coop) return false;
+					if (d.kind === 'Rental' && !rental) return false;
+					if (d.senior_only && !senior) return false;
+					if (emailOnly && !d.email) return false;
+					if (openOnly && !d.on_open_list && !d.on_short_list) return false;
+					if (d.borough && !bs.has(d.borough)) return false;
+					if (d.est_transit_min != null && d.est_transit_min > maxT)
+						return false;
+					return true;
+				});
+			}
 
-function toggleSel(id) {
-  const d = BYID[id];
-  if (!d || !d.email) return;
-  SEL.has(id) ? SEL.delete(id) : SEL.add(id);
-  saveSel();
-  render();
-}
-function clearSel() { SEL.clear(); saveSel(); chipsExpanded = false; render(); }
-function selectAllVisible() {
-  visible().forEach(d => { if (d.email) SEL.add(d.id); });
-  saveSel(); render();
-}
+			function toggleSel(id) {
+				const d = BYID[id];
+				if (!d || !d.email) return;
+				SEL.has(id) ? SEL.delete(id) : SEL.add(id);
+				saveSel();
+				render();
+			}
+			function clearSel() {
+				SEL.clear();
+				saveSel();
+				chipsExpanded = false;
+				render();
+			}
+			function selectAllVisible() {
+				visible().forEach((d) => {
+					if (d.email) SEL.add(d.id);
+				});
+				saveSel();
+				render();
+			}
 
-function markerStyle(d) {
-  const base = d.on_open_list ? "#2ecc71" : (d.email ? "#4f8ef7" : "#555c69");
-  const sel = SEL.has(d.id);
-  return { radius: sel ? 9 : 6.5, weight: sel ? 3 : 1.5,
-           color: sel ? "#f5b942" : base, fillColor: base, fillOpacity: .8 };
-}
+			function markerStyle(d) {
+				const base = d.on_open_list
+					? '#2ecc71'
+					: d.email
+						? '#4f8ef7'
+						: '#555c69';
+				const sel = SEL.has(d.id);
+				return {
+					radius: sel ? 9 : 6.5,
+					weight: sel ? 3 : 1.5,
+					color: sel ? '#f5b942' : base,
+					fillColor: base,
+					fillOpacity: 0.8,
+				};
+			}
 
-function tooltipHtml(d) {
-  const sizes = d.on_open_list
-    ? [["S", d.wl_studio], ["1BR", d.wl_1br], ["2BR", d.wl_2br], ["3BR", d.wl_3br], ["4+", d.wl_4br]]
-      .filter(([, v]) => v === "Open").map(([k]) => k).join(", ") : null;
-  return `<b>${esc(titleCase(d.name))}</b><br>${esc(d.kind || "?")} · ${d.units ?? "?"} units · ~${d.est_transit_min ?? "?"} min to Midtown` +
-    (sizes ? `<br><span style="color:#2ecc71">Waitlist open: ${sizes}</span>` : "") +
-    (d.email ? `<br>${esc(d.email)}<br><i>click to ${SEL.has(d.id) ? "deselect" : "select"}</i>`
-             : `<br>${esc(d.phone || "")}<br><i>no email — call list</i>`);
-}
+			function tooltipHtml(d) {
+				const sizes = d.on_open_list
+					? [
+							['S', d.wl_studio],
+							['1BR', d.wl_1br],
+							['2BR', d.wl_2br],
+							['3BR', d.wl_3br],
+							['4+', d.wl_4br],
+						]
+							.filter(([, v]) => v === 'Open')
+							.map(([k]) => k)
+							.join(', ')
+					: null;
+				return (
+					`<b>${esc(titleCase(d.name))}</b><br>${esc(d.kind || '?')} · ${d.units ?? '?'} units · ~${d.est_transit_min ?? '?'} min to Midtown` +
+					(sizes
+						? `<br><span style="color:#2ecc71">Waitlist open: ${sizes}</span>`
+						: '') +
+					(d.email
+						? `<br>${esc(d.email)}<br><i>click to ${SEL.has(d.id) ? 'deselect' : 'select'}</i>`
+						: `<br>${esc(d.phone || '')}<br><i>no email — call list</i>`)
+				);
+			}
 
-function wlTags(d) {
-  let t = "";
-  if (d.on_open_list) {
-    const sizes = [["S", d.wl_studio], ["1", d.wl_1br], ["2", d.wl_2br], ["3", d.wl_3br], ["4+", d.wl_4br]]
-      .filter(([, v]) => v === "Open").map(([k]) => k);
-    t += `<span class="tag open">open: ${sizes.join(",") || "?"}</span>`;
-  }
-  if (d.on_short_list) t += `<span class="tag short">short list</span>`;
-  return t || `<span class="dim">unknown</span>`;
-}
+			function wlTags(d) {
+				let t = '';
+				if (d.on_open_list) {
+					const sizes = [
+						['S', d.wl_studio],
+						['1', d.wl_1br],
+						['2', d.wl_2br],
+						['3', d.wl_3br],
+						['4+', d.wl_4br],
+					]
+						.filter(([, v]) => v === 'Open')
+						.map(([k]) => k);
+					t += `<span class="tag open">open: ${sizes.join(',') || '?'}</span>`;
+				}
+				if (d.on_short_list) t += `<span class="tag short">short list</span>`;
+				return t || `<span class="dim">unknown</span>`;
+			}
 
-function render() {
-  $("#f-transit-val").textContent = $("#f-transit").value;
-  const vis = visible();
-  const rows = sortKey ? [...vis].sort((a, b) => {
-    const x = a[sortKey], y = b[sortKey];
-    if (x == null) return 1; if (y == null) return -1;
-    return (x < y ? -1 : x > y ? 1 : 0) * (sortAsc ? 1 : -1);
-  }) : vis;
+			function render() {
+				$('#f-transit-val').textContent = $('#f-transit').value;
+				const vis = visible();
+				const rows = sortKey
+					? [...vis].sort((a, b) => {
+							const x = a[sortKey],
+								y = b[sortKey];
+							if (x == null) return 1;
+							if (y == null) return -1;
+							return (x < y ? -1 : x > y ? 1 : 0) * (sortAsc ? 1 : -1);
+						})
+					: vis;
 
-  $("#tbl tbody").innerHTML = rows.map(d => {
-    const maps = d.address ? `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(d.address)}&destination=Times+Square,+Manhattan,+NY&travelmode=transit` : null;
-    const dr = draftFor(d.id);
-    return `<tr data-id="${d.id}" class="${SEL.has(d.id) ? "selrow" : ""}${d.email ? "" : " nomail"}" title="${esc(d.address || "")}">
-      <td><input type="checkbox" ${SEL.has(d.id) ? "checked" : ""} ${d.email ? "" : "disabled"}></td>
-      <td>${esc(titleCase(d.name))} ${d.senior_only ? '<span class="tag senior">62+</span>' : ""}</td>
-      <td>${esc(d.borough || "?")}</td>
-      <td><span class="tag ${d.kind === "Coop" ? "coop" : "rental"}">${esc(d.kind || "?")}</span></td>
-      <td>${d.units ?? ""}</td>
-      <td>${d.est_transit_min != null ? "~" + d.est_transit_min + " min" : '<span class=dim>?</span>'}</td>
+				$('#tbl tbody').innerHTML = rows
+					.map((d) => {
+						const maps = d.address
+							? `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(d.address)}&destination=Times+Square,+Manhattan,+NY&travelmode=transit`
+							: null;
+						const dr = draftFor(d.id);
+						return `<tr data-id="${d.id}" class="${SEL.has(d.id) ? 'selrow' : ''}${d.email ? '' : ' nomail'}" title="${esc(d.address || '')}">
+      <td><input type="checkbox" ${SEL.has(d.id) ? 'checked' : ''} ${d.email ? '' : 'disabled'}></td>
+      <td>${esc(titleCase(d.name))} ${d.senior_only ? '<span class="tag senior">62+</span>' : ''}</td>
+      <td>${esc(d.borough || '?')}</td>
+      <td><span class="tag ${d.kind === 'Coop' ? 'coop' : 'rental'}">${esc(d.kind || '?')}</span></td>
+      <td>${d.units ?? ''}</td>
+      <td>${d.est_transit_min != null ? '~' + d.est_transit_min + ' min' : '<span class=dim>?</span>'}</td>
       <td>${wlTags(d)}</td>
-      <td>${d.email ? `${esc(d.email)}${d.email_source === "company-match" ? ' <span class="dim" title="email found via the management company on the HCR state list">≈</span>' : ""}` : '<span class=dim>phone only</span>'}</td>
-      <td>${esc(d.phone || "")}</td>
+      <td>${d.email ? `${esc(d.email)}${d.email_source === 'company-match' ? ' <span class="dim" title="email found via the management company on the HCR state list">≈</span>' : ''}` : '<span class=dim>phone only</span>'}</td>
+      <td>${esc(d.phone || '')}</td>
       <td><span class="locate" data-loc="${d.id}" title="Show on map">⌖</span>
-          ${maps ? ` <a href="${maps}" target="_blank" title="Google Maps transit directions">Maps</a>` : ""}
-          ${dr ? ` <span class="st ${esc(dr.status)}">${esc(dr.status)}</span>` : ""}</td>
+          ${maps ? ` <a href="${maps}" target="_blank" title="Google Maps transit directions">Maps</a>` : ''}
+          ${dr ? ` <span class="st ${esc(dr.status)}">${esc(dr.status)}</span>` : ''}</td>
     </tr>`;
-  }).join("");
+					})
+					.join('');
 
-  document.querySelectorAll("#tbl tbody tr").forEach(tr => {
-    const id = +tr.dataset.id;
-    tr.addEventListener("click", e => {
-      if (e.target.closest("a") || e.target.dataset.loc) return;
-      toggleSel(id);
-    });
-    tr.addEventListener("mouseenter", () => { const m = MARKS[id]; if (m) m.setStyle({ radius: 11 }); });
-    tr.addEventListener("mouseleave", () => { const m = MARKS[id]; if (m) m.setStyle(markerStyle(BYID[id])); });
-  });
-  document.querySelectorAll(".locate").forEach(el => el.addEventListener("click", e => {
-    e.stopPropagation();
-    const d = BYID[+el.dataset.loc];
-    if (d && d.lat) { MAP.setView([d.lat, d.lng], 14); MARKS[d.id].openTooltip(); }
-  }));
+				document.querySelectorAll('#tbl tbody tr').forEach((tr) => {
+					const id = +tr.dataset.id;
+					tr.addEventListener('click', (e) => {
+						if (e.target.closest('a') || e.target.dataset.loc) return;
+						toggleSel(id);
+					});
+					tr.addEventListener('mouseenter', () => {
+						const m = MARKS[id];
+						if (m) m.setStyle({ radius: 11 });
+					});
+					tr.addEventListener('mouseleave', () => {
+						const m = MARKS[id];
+						if (m) m.setStyle(markerStyle(BYID[id]));
+					});
+				});
+				document.querySelectorAll('.locate').forEach((el) =>
+					el.addEventListener('click', (e) => {
+						e.stopPropagation();
+						const d = BYID[+el.dataset.loc];
+						if (d && d.lat) {
+							MAP.setView([d.lat, d.lng], 14);
+							MARKS[d.id].openTooltip();
+						}
+					}),
+				);
 
-  // map markers: keep one marker per dev, restyle rather than rebuild
-  const visIds = new Set(rows.map(d => d.id));
-  for (const [id, m] of Object.entries(MARKS)) {
-    if (!visIds.has(+id)) { MAP.removeLayer(m); delete MARKS[id]; }
-  }
-  rows.filter(d => d.lat).forEach(d => {
-    let m = MARKS[d.id];
-    if (!m) {
-      m = L.circleMarker([d.lat, d.lng], markerStyle(d)).addTo(MAP);
-      m.bindTooltip("", { direction: "top", offset: [0, -6], opacity: .95 });
-      m.on("click", () => toggleSel(d.id));
-      MARKS[d.id] = m;
-    }
-    m.setStyle(markerStyle(d));
-    m.setTooltipContent(tooltipHtml(d));
-  });
+				// map markers: keep one marker per dev, restyle rather than rebuild
+				const visIds = new Set(rows.map((d) => d.id));
+				for (const [id, m] of Object.entries(MARKS)) {
+					if (!visIds.has(+id)) {
+						MAP.removeLayer(m);
+						delete MARKS[id];
+					}
+				}
+				rows
+					.filter((d) => d.lat)
+					.forEach((d) => {
+						let m = MARKS[d.id];
+						if (!m) {
+							m = L.circleMarker([d.lat, d.lng], markerStyle(d)).addTo(MAP);
+							m.bindTooltip('', {
+								direction: 'top',
+								offset: [0, -6],
+								opacity: 0.95,
+							});
+							m.on('click', () => toggleSel(d.id));
+							MARKS[d.id] = m;
+						}
+						m.setStyle(markerStyle(d));
+						m.setTooltipContent(tooltipHtml(d));
+					});
 
-  renderTray();
-  const withEmail = vis.filter(d => d.email).length;
-  $("#counts").textContent = `${vis.length} shown · ${withEmail} emailable · ${vis.filter(d => d.on_open_list).length} confirmed open`;
-  $("#hdr-counts").textContent = `${DEVS.length} developments · ${DEVS.filter(d => d.email).length} emailable`;
-  renderBadge();
-}
+				renderTray();
+				const withEmail = vis.filter((d) => d.email).length;
+				$('#counts').textContent =
+					`${vis.length} shown · ${withEmail} emailable · ${vis.filter((d) => d.on_open_list).length} confirmed open`;
+				$('#hdr-counts').textContent =
+					`${DEVS.length} developments · ${DEVS.filter((d) => d.email).length} emailable`;
+				renderBadge();
+			}
 
-function renderTray() {
-  const tray = $("#tray");
-  if (!SEL.size) { tray.classList.remove("show"); return; }
-  tray.classList.add("show");
-  $("#tray-count").textContent = `${SEL.size} selected`;
-  const items = [...SEL].map(id => BYID[id]).filter(Boolean);
-  const maxChips = chipsExpanded ? items.length : 8;
-  $("#tray-chips").innerHTML =
-    items.slice(0, maxChips).map(d =>
-      `<span class="chip">${esc(titleCase(d.name))}<b data-x="${d.id}" title="Remove">✕</b></span>`).join("") +
-    (items.length > maxChips ? `<span class="chip more" onclick="chipsExpanded=true;render()">+${items.length - maxChips} more</span>` : "") +
-    (chipsExpanded && items.length > 8 ? `<span class="chip more" onclick="chipsExpanded=false;render()">collapse</span>` : "");
-  document.querySelectorAll("#tray-chips b[data-x]").forEach(b =>
-    b.addEventListener("click", () => toggleSel(+b.dataset.x)));
-  $("#gen-btn").textContent = `Draft emails (${SEL.size})`;
-}
+			function renderTray() {
+				const tray = $('#tray');
+				if (!SEL.size) {
+					tray.classList.remove('show');
+					return;
+				}
+				tray.classList.add('show');
+				$('#tray-count').textContent = `${SEL.size} selected`;
+				const items = [...SEL].map((id) => BYID[id]).filter(Boolean);
+				const maxChips = chipsExpanded ? items.length : 8;
+				$('#tray-chips').innerHTML =
+					items
+						.slice(0, maxChips)
+						.map(
+							(d) =>
+								`<span class="chip">${esc(titleCase(d.name))}<b data-x="${d.id}" title="Remove">✕</b></span>`,
+						)
+						.join('') +
+					(items.length > maxChips
+						? `<span class="chip more" onclick="chipsExpanded=true;render()">+${items.length - maxChips} more</span>`
+						: '') +
+					(chipsExpanded && items.length > 8
+						? `<span class="chip more" onclick="chipsExpanded=false;render()">collapse</span>`
+						: '');
+				document
+					.querySelectorAll('#tray-chips b[data-x]')
+					.forEach((b) =>
+						b.addEventListener('click', () => toggleSel(+b.dataset.x)),
+					);
+				$('#gen-btn').textContent = `Draft emails (${SEL.size})`;
+			}
 
-/* ---------------- queue ---------------- */
-const draftFor = devId => DRAFTS.find(x => x.development_id === devId);
+			/* ---------------- queue ---------------- */
+			const draftFor = (devId) =>
+				DRAFTS.find((x) => x.development_id === devId);
 
-function renderBadge() {
-  const counts = {};
-  DRAFTS.forEach(x => counts[x.status] = (counts[x.status] || 0) + 1);
-  const total = DRAFTS.filter(x => x.status !== "skipped").length;
-  const badge = $("#queue-badge");
-  badge.textContent = counts.sent ? `${counts.sent}/${total} sent` : total;
-  badge.classList.toggle("empty", !total);
-}
+			function renderBadge() {
+				const counts = {};
+				DRAFTS.forEach((x) => (counts[x.status] = (counts[x.status] || 0) + 1));
+				const total = DRAFTS.filter((x) => x.status !== 'skipped').length;
+				const badge = $('#queue-badge');
+				badge.textContent = counts.sent
+					? `${counts.sent}/${total} sent`
+					: total;
+				badge.classList.toggle('empty', !total);
+			}
 
-async function loadDrafts(rerenderTable = true) {
-  DRAFTS = (await (await fetch("/api/drafts")).json()).drafts;
-  $("#smtp-banner").style.display = CFG.smtp_configured ? "none" : "block";
-  const counts = { all: DRAFTS.length };
-  DRAFTS.forEach(x => counts[x.status] = (counts[x.status] || 0) + 1);
-  $("#q-filters").innerHTML = ["all", "draft", "approved", "sent", "skipped", "error"]
-    .filter(k => counts[k])
-    .map(k => `<button class="qf ${qFilter === k ? "active" : ""}" onclick="qFilter='${k}';loadDrafts()">${k} (${counts[k] || 0})</button>`)
-    .join("");
-  const shown = DRAFTS.filter(x => qFilter === "all" || x.status === qFilter);
-  $("#q-list").innerHTML = shown.map(x => `
-    <div class="draft ${NEW_IDS.has(x.id) ? "new" : ""}" data-id="${x.id}">
+			async function loadDrafts(rerenderTable = true) {
+				DRAFTS = (await (await fetch('/api/drafts')).json()).drafts;
+				$('#smtp-banner').style.display = CFG.smtp_configured
+					? 'none'
+					: 'block';
+				const counts = { all: DRAFTS.length };
+				DRAFTS.forEach((x) => (counts[x.status] = (counts[x.status] || 0) + 1));
+				$('#q-filters').innerHTML = [
+					'all',
+					'draft',
+					'approved',
+					'sent',
+					'skipped',
+					'error',
+				]
+					.filter((k) => counts[k])
+					.map(
+						(k) =>
+							`<button class="qf ${qFilter === k ? 'active' : ''}" onclick="qFilter='${k}';loadDrafts()">${k} (${counts[k] || 0})</button>`,
+					)
+					.join('');
+				const shown = DRAFTS.filter(
+					(x) => qFilter === 'all' || x.status === qFilter,
+				);
+				$('#q-list').innerHTML =
+					shown
+						.map(
+							(x) => `
+    <div class="draft ${NEW_IDS.has(x.id) ? 'new' : ''}" data-id="${x.id}">
       <div class="head" onclick="this.parentElement.classList.toggle('openx')">
         <b>${esc(titleCase(x.dev_name))}</b>
-        ${NEW_IDS.has(x.id) ? '<span class="newtag">new</span>' : ""}
-        <span class="dim" style="font-size:12px">${esc(x.borough || "")} · ${esc(x.kind || "")} · ${esc(x.to_email)}${x.email_source === "company-match" ? " ≈" : ""}</span>
-        <span class="st ${esc(x.status)}">${esc(x.status)}${x.error ? " — " + esc(x.error) : ""}</span>
+        ${NEW_IDS.has(x.id) ? '<span class="newtag">new</span>' : ''}
+        <span class="dim" style="font-size:12px">${esc(x.borough || '')} · ${esc(x.kind || '')} · ${esc(x.to_email)}${x.email_source === 'company-match' ? ' ≈' : ''}</span>
+        <span class="st ${esc(x.status)}">${esc(x.status)}${x.error ? ' — ' + esc(x.error) : ''}</span>
       </div>
       <div class="body">
-        <p><input type="text" class="d-subj" value="${esc(x.subject)}" ${x.status === "sent" ? "disabled" : ""}></p>
-        <textarea class="d-body" ${x.status === "sent" ? "disabled" : ""}>${esc(x.body)}</textarea>
+        <p><input type="text" class="d-subj" value="${esc(x.subject)}" ${x.status === 'sent' ? 'disabled' : ''}></p>
+        <textarea class="d-body" ${x.status === 'sent' ? 'disabled' : ''}>${esc(x.body)}</textarea>
         <div class="rowbtns">
-          ${x.status !== "sent" ? `
+          ${
+						x.status !== 'sent'
+							? `
             <button class="btn secondary small" onclick="saveDraft(${x.id})">Save edits</button>
-            <button class="btn secondary small" onclick="setStatus(${x.id}, '${x.status === "approved" ? "draft" : "approved"}')">
-              ${x.status === "approved" ? "Un-approve" : "Approve"}</button>
-            <button class="btn secondary small" onclick="setStatus(${x.id}, 'skipped')">Skip</button>` : ""}
+            <button class="btn secondary small" onclick="setStatus(${x.id}, '${x.status === 'approved' ? 'draft' : 'approved'}')">
+              ${x.status === 'approved' ? 'Un-approve' : 'Approve'}</button>
+            <button class="btn secondary small" onclick="setStatus(${x.id}, 'skipped')">Skip</button>`
+							: ''
+					}
         </div>
       </div>
-    </div>`).join("")
-    || '<p class="dim" style="margin-top:14px">Nothing here yet. Select buildings on the map or table, then hit <b>Draft emails</b>.</p>';
-  renderBadge();
-  if (rerenderTable) render();
-}
+    </div>`,
+						)
+						.join('') ||
+					'<p class="dim" style="margin-top:14px">Nothing here yet. Select buildings on the map or table, then hit <b>Draft emails</b>.</p>';
+				renderBadge();
+				if (rerenderTable) render();
+			}
 
-function toggleQueue(open) {
-  $("#queue").classList.toggle("open", open);
-  if (open) loadDrafts(false);
-}
+			function toggleQueue(open) {
+				$('#queue').classList.toggle('open', open);
+				if (open) loadDrafts(false);
+			}
 
-async function generateDrafts() {
-  const r = await (await fetch("/api/drafts/generate", {
-    method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ ids: [...SEL] }),
-  })).json();
-  NEW_IDS = new Set(r.draft_ids);
-  qFilter = "draft";
-  await loadDrafts();
-  toggleQueue(true);
-}
+			async function generateDrafts() {
+				const r = await (
+					await fetch('/api/drafts/generate', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ ids: [...SEL] }),
+					})
+				).json();
+				NEW_IDS = new Set(r.draft_ids);
+				qFilter = 'draft';
+				await loadDrafts();
+				toggleQueue(true);
+			}
 
-async function saveDraft(id) {
-  const el = document.querySelector(`.draft[data-id="${id}"]`);
-  await fetch(`/api/drafts/${id}`, { method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ subject: el.querySelector(".d-subj").value, body: el.querySelector(".d-body").value }) });
-  loadDrafts();
-}
-async function setStatus(id, status) {
-  await fetch(`/api/drafts/${id}`, { method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ status }) });
-  loadDrafts();
-}
-async function approveShown() {
-  const ids = DRAFTS.filter(x => x.status === "draft" && (qFilter === "all" || qFilter === "draft"))
-    .map(x => x.id);
-  if (!ids.length) return;
-  await fetch("/api/drafts/bulk/status", { method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ ids, status: "approved" }) });
-  qFilter = "approved";
-  await loadDrafts();
-}
-async function sendAll() {
-  const n = DRAFTS.filter(x => x.status === "approved").length;
-  if (!n) { alert("No approved drafts. Approve some first."); return; }
-  if (!confirm(`Send ${n} approved emails from ${CFG.gmail_user}, one every ${CFG.send_interval}s?`)) return;
-  const r = await (await fetch("/api/send", { method: "POST" })).json();
-  if (r.error) { alert(r.error); return; }
-  pollSend();
-}
-async function pollSend() {
-  const s = await (await fetch("/api/send/status")).json();
-  $("#sendprog").textContent = s.running
-    ? `sending… ${s.sent}/${s.total}${s.last_error ? " · " + s.last_error : ""}`
-    : `done: ${s.sent}/${s.total} sent${s.last_error ? " · " + s.last_error : ""}`;
-  if (s.running) setTimeout(pollSend, 2000); else loadDrafts();
-}
+			async function saveDraft(id) {
+				const el = document.querySelector(`.draft[data-id="${id}"]`);
+				await fetch(`/api/drafts/${id}`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						subject: el.querySelector('.d-subj').value,
+						body: el.querySelector('.d-body').value,
+					}),
+				});
+				loadDrafts();
+			}
+			async function setStatus(id, status) {
+				await fetch(`/api/drafts/${id}`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ status }),
+				});
+				loadDrafts();
+			}
+			async function approveShown() {
+				const ids = DRAFTS.filter(
+					(x) =>
+						x.status === 'draft' && (qFilter === 'all' || qFilter === 'draft'),
+				).map((x) => x.id);
+				if (!ids.length) return;
+				await fetch('/api/drafts/bulk/status', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ ids, status: 'approved' }),
+				});
+				qFilter = 'approved';
+				await loadDrafts();
+			}
+			async function sendAll() {
+				const n = DRAFTS.filter((x) => x.status === 'approved').length;
+				if (!n) {
+					alert('No approved drafts. Approve some first.');
+					return;
+				}
+				if (
+					!confirm(
+						`Send ${n} approved emails from ${CFG.gmail_user}, one every ${CFG.send_interval}s?`,
+					)
+				)
+					return;
+				const r = await (await fetch('/api/send', { method: 'POST' })).json();
+				if (r.error) {
+					alert(r.error);
+					return;
+				}
+				pollSend();
+			}
+			async function pollSend() {
+				const s = await (await fetch('/api/send/status')).json();
+				$('#sendprog').textContent = s.running
+					? `sending… ${s.sent}/${s.total}${s.last_error ? ' · ' + s.last_error : ''}`
+					: `done: ${s.sent}/${s.total} sent${s.last_error ? ' · ' + s.last_error : ''}`;
+				if (s.running) setTimeout(pollSend, 2000);
+				else loadDrafts();
+			}
 
-init();
-</script>
-</body>
+			init();
+		</script>
+	</body>
 </html>
